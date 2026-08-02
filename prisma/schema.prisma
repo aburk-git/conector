@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Administradores del panel de CONECTOR (no son usuarios de ningun barrio)
+model AdminUsuario {
+  id_admin       Int      @id @default(autoincrement())
+  nombre         String
+  email          String   @unique
+  password_hash  String
+  fecha_creacion DateTime @default(now())
+
+  @@map("admin_usuario")
+}
+
+// Cada barrio es una instalacion independiente, con su propia base y su propia url
+model Barrio {
+  id_barrio      Int             @id @default(autoincrement())
+  nombre         String
+  subdominio     String          @unique
+  url            String
+  activo         Boolean         @default(true)
+  fecha_creacion DateTime        @default(now())
+  asociaciones   UsuarioBarrio[]
+
+  @@map("barrio")
+}
+
+// Relacion DNI <-> barrio: en que barrios tiene usuario esa persona
+model UsuarioBarrio {
+  id             Int      @id @default(autoincrement())
+  dni            String
+  nombre         String?
+  apellido       String?
+  id_barrio      Int
+  barrio         Barrio   @relation(fields: [id_barrio], references: [id_barrio])
+  fecha_creacion DateTime @default(now())
+
+  @@unique([dni, id_barrio])
+  @@index([dni])
+  @@map("usuario_barrio")
+}
