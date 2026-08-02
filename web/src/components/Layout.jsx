@@ -14,6 +14,7 @@ export default function Layout() {
         </div>
         <div className="d-flex align-items-center gap-3">
           <span className="text-white-50 small">{admin?.email}</span>
+          <NavLink to="/cambiar-password" className="nav-link">Cambiar contraseña</NavLink>
           <button className="btn btn-outline-light btn-sm" onClick={logout}>Salir</button>
         </div>
       </nav>

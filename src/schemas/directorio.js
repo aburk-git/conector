@@ -30,4 +30,9 @@ const webhookSchema = z.object({
   activo: z.boolean().optional(),
 });
 
-module.exports = { loginSchema, barrioSchema, asociacionSchema, buscarSchema, webhookSchema };
+const cambiarPasswordSchema = z.object({
+  password_actual: z.string().min(1),
+  password_nueva: z.string().min(8, 'La contraseña nueva debe tener al menos 8 caracteres'),
+});
+
+module.exports = { loginSchema, barrioSchema, asociacionSchema, buscarSchema, webhookSchema, cambiarPasswordSchema };

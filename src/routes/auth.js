@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const prisma = require('../lib/prisma');
 const { validate } = require('../middleware/validate');
-const { loginSchema } = require('../schemas/directorio');
+const { requireAuth } = require('../middleware/auth');
+const { loginSchema, cambiarPasswordSchema } = require('../schemas/directorio');
 
 const router = express.Router();
 
@@ -38,6 +39,21 @@ router.post('/login', limitadorLogin, validate(loginSchema), async (req, res) =>
   );
 
   res.json({ token, admin: { id_admin: admin.id_admin, nombre: admin.nombre, email: admin.email } });
+});
+
+router.patch('/password', requireAuth, validate(cambiarPasswordSchema), async (req, res) => {
+  const { password_actual, password_nueva } = req.body;
+
+  const admin = await prisma.adminUsuario.findUnique({ where: { id_admin: req.admin.id_admin } });
+  const passwordValida = await bcrypt.compare(password_actual, admin.password_hash);
+  if (!passwordValida) {
+    return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+  }
+
+  const password_hash = await bcrypt.hash(password_nueva, 10);
+  await prisma.adminUsuario.update({ where: { id_admin: admin.id_admin }, data: { password_hash } });
+
+  res.json({ ok: true });
 });
 
 module.exports = router;

@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Barrios from './pages/Barrios';
 import Asociaciones from './pages/Asociaciones';
+import CambiarPassword from './pages/CambiarPassword';
 
 function RutaProtegida({ children }) {
   const { admin } = useAuth();
@@ -23,6 +24,7 @@ function Rutas() {
       >
         <Route path="/barrios" element={<Barrios />} />
         <Route path="/asociaciones" element={<Asociaciones />} />
+        <Route path="/cambiar-password" element={<CambiarPassword />} />
         <Route path="*" element={<Navigate to="/barrios" replace />} />
       </Route>
     </Routes>
