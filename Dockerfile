@@ -1,5 +1,7 @@
 FROM node:20-bookworm-slim
 
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Copiamos solo los manifiestos primero (mejor cache de Docker)
