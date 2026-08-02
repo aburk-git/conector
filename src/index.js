@@ -9,6 +9,7 @@ const authRouter = require('./routes/auth');
 const barriosRouter = require('./routes/barrios');
 const asociacionesRouter = require('./routes/asociaciones');
 const buscarRouter = require('./routes/buscar');
+const syncRouter = require('./routes/sync');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -38,6 +39,10 @@ app.use('/api/buscar', limitadorBuscar, buscarRouter);
 
 app.use('/api/barrios', requireAuth, barriosRouter);
 app.use('/api/asociaciones', requireAuth, asociacionesRouter);
+
+// Sin requireAuth: se autentica sola con x-api-key (trafico servidor-a-servidor
+// de cada barrio, no un usuario con sesion).
+app.use('/api/sync', syncRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Recurso no encontrado' });

@@ -8,6 +8,8 @@ export default function Barrios() {
   const [form, setForm] = useState(vacio);
   const [editando, setEditando] = useState(null);
   const [error, setError] = useState('');
+  const [sincronizando, setSincronizando] = useState(null);
+  const [mensaje, setMensaje] = useState('');
 
   async function cargar() {
     const { data } = await api.get('/barrios');
@@ -46,11 +48,32 @@ export default function Barrios() {
     cargar();
   }
 
+  async function copiarApiKey(apiKey) {
+    await navigator.clipboard.writeText(apiKey);
+    setMensaje('api_key copiada. Pegala como CONECTOR_API_KEY en el backend de ese barrio.');
+    setTimeout(() => setMensaje(''), 5000);
+  }
+
+  async function sincronizar(id) {
+    setSincronizando(id);
+    setError('');
+    setMensaje('');
+    try {
+      const { data } = await api.post(`/barrios/${id}/sincronizar`);
+      setMensaje(`Se sincronizaron ${data.sincronizados} usuarios.`);
+    } catch (err) {
+      setError(err.response?.data?.error ?? 'No se pudo sincronizar. Revisa que el barrio ya tenga cargadas CONECTOR_URL y CONECTOR_API_KEY.');
+    } finally {
+      setSincronizando(null);
+    }
+  }
+
   return (
     <div className="row">
       <div className="col-md-5">
         <h5>{editando ? 'Editar barrio' : 'Nuevo barrio'}</h5>
         {error && <div className="alert alert-danger py-2">{error}</div>}
+        {mensaje && <div className="alert alert-success py-2">{mensaje}</div>}
         <form onSubmit={handleSubmit} className="card p-3">
           <div className="mb-2">
             <label className="form-label">Nombre</label>
@@ -80,7 +103,7 @@ export default function Barrios() {
       </div>
       <div className="col-md-7">
         <h5>Barrios</h5>
-        <table className="table table-sm table-hover">
+        <table className="table table-sm table-hover align-middle">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -96,6 +119,12 @@ export default function Barrios() {
                 <td>{b.subdominio}</td>
                 <td>{b.activo ? <span className="badge text-bg-success">Activo</span> : <span className="badge text-bg-secondary">Inactivo</span>}</td>
                 <td className="text-end">
+                  <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => copiarApiKey(b.api_key)} title="Copiar api_key para configurar en el backend del barrio">
+                    Copiar api_key
+                  </button>
+                  <button className="btn btn-sm btn-outline-success me-1" onClick={() => sincronizar(b.id_barrio)} disabled={sincronizando === b.id_barrio}>
+                    {sincronizando === b.id_barrio ? 'Sincronizando...' : 'Sincronizar'}
+                  </button>
                   <button className="btn btn-sm btn-outline-primary me-1" onClick={() => editar(b)}>Editar</button>
                   <button className="btn btn-sm btn-outline-danger" onClick={() => eliminar(b.id_barrio)}>Eliminar</button>
                 </td>
@@ -103,6 +132,11 @@ export default function Barrios() {
             ))}
           </tbody>
         </table>
+        <p className="text-muted small">
+          Al crear un barrio se genera una <code>api_key</code> propia. Copiala y cargala como <code>CONECTOR_URL</code>
+          {' '}(esta URL: <code>{import.meta.env.VITE_API_URL}</code>) y <code>CONECTOR_API_KEY</code> en las variables de entorno
+          del backend de ese barrio, y redeployalo. Recien ahi "Sincronizar" va a poder traer sus usuarios.
+        </p>
       </div>
     </div>
   );

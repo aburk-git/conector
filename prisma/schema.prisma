@@ -24,6 +24,11 @@ model Barrio {
   nombre         String
   subdominio     String          @unique
   url            String
+  // Secreto propio de este barrio: su backend lo usa para avisar altas/bajas
+  // de DNI aca, y nosotros lo usamos para pedirle el export inicial. Que sea
+  // por barrio (no uno global) evita que uno pueda leer/escribir los datos de
+  // otro si se filtra.
+  api_key        String          @unique
   activo         Boolean         @default(true)
   fecha_creacion DateTime        @default(now())
   asociaciones   UsuarioBarrio[]
