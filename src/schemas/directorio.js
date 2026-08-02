@@ -23,4 +23,11 @@ const buscarSchema = z.object({
   dni: z.string().min(1),
 });
 
-module.exports = { loginSchema, barrioSchema, asociacionSchema, buscarSchema };
+const webhookSchema = z.object({
+  dni: z.string().min(1).max(20),
+  nombre: z.string().max(100).optional(),
+  apellido: z.string().max(100).optional(),
+  activo: z.boolean().optional(),
+});
+
+module.exports = { loginSchema, barrioSchema, asociacionSchema, buscarSchema, webhookSchema };
