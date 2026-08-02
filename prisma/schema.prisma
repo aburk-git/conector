@@ -42,6 +42,11 @@ model UsuarioBarrio {
   dni            String
   nombre         String?
   apellido       String?
+  // Refleja el estado del usuario en el barrio (activo/inactivo/archivado).
+  // Se mantiene el registro en vez de borrarlo para que quede visible en el
+  // panel quien tuvo acceso y ya no; /buscar solo devuelve activo=true, asi
+  // que alguien dado de baja deja de aparecer en la app igual.
+  activo         Boolean  @default(true)
   id_barrio      Int
   barrio         Barrio   @relation(fields: [id_barrio], references: [id_barrio])
   fecha_creacion DateTime @default(now())

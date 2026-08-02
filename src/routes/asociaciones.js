@@ -21,6 +21,20 @@ router.post('/', validate(asociacionSchema), async (req, res) => {
   res.status(201).json(asociacion);
 });
 
+// Alta/baja manual, para barrios que todavia no tienen configurado el aviso
+// automatico (CONECTOR_URL/CONECTOR_API_KEY).
+router.patch('/:id/estado', async (req, res) => {
+  const { activo } = req.body;
+  if (typeof activo !== 'boolean') {
+    return res.status(400).json({ error: 'activo debe ser true o false' });
+  }
+  const asociacion = await prisma.usuarioBarrio.update({
+    where: { id: Number(req.params.id) },
+    data: { activo },
+  });
+  res.json(asociacion);
+});
+
 router.delete('/:id', async (req, res) => {
   await prisma.usuarioBarrio.delete({ where: { id: Number(req.params.id) } });
   res.status(204).end();

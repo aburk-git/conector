@@ -26,14 +26,17 @@ router.post('/webhook', limitadorWebhook, validate(webhookSchema), async (req, r
   const { dni, nombre, apellido, activo } = req.body;
 
   if (activo === false) {
-    await prisma.usuarioBarrio.deleteMany({ where: { dni, id_barrio: barrio.id_barrio } });
-    return res.json({ ok: true, accion: 'eliminado' });
+    // Se mantiene el registro (marcado inactivo) en vez de borrarlo: queda
+    // visible en el panel quien tuvo acceso y se le dio de baja. /buscar solo
+    // trae activo=true, asi que deja de poder entrar a la app igual.
+    await prisma.usuarioBarrio.updateMany({ where: { dni, id_barrio: barrio.id_barrio }, data: { activo: false } });
+    return res.json({ ok: true, accion: 'marcado_inactivo' });
   }
 
   await prisma.usuarioBarrio.upsert({
     where: { dni_id_barrio: { dni, id_barrio: barrio.id_barrio } },
-    update: { nombre, apellido },
-    create: { dni, nombre, apellido, id_barrio: barrio.id_barrio },
+    update: { nombre, apellido, activo: true },
+    create: { dni, nombre, apellido, id_barrio: barrio.id_barrio, activo: true },
   });
   res.json({ ok: true, accion: 'actualizado' });
 });

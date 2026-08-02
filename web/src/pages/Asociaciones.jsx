@@ -38,6 +38,11 @@ export default function Asociaciones() {
     cargar(filtroDni);
   }
 
+  async function toggleActivo(a) {
+    await api.patch(`/asociaciones/${a.id}/estado`, { activo: !a.activo });
+    cargar(filtroDni);
+  }
+
   function buscar(e) {
     e.preventDefault();
     cargar(filtroDni);
@@ -85,6 +90,7 @@ export default function Asociaciones() {
               <th>DNI</th>
               <th>Nombre</th>
               <th>Barrio</th>
+              <th>Estado</th>
               <th></th>
             </tr>
           </thead>
@@ -94,7 +100,13 @@ export default function Asociaciones() {
                 <td>{a.dni}</td>
                 <td>{[a.nombre, a.apellido].filter(Boolean).join(' ')}</td>
                 <td>{a.barrio.nombre}</td>
+                <td>
+                  {a.activo ? <span className="badge text-bg-success">Activo</span> : <span className="badge text-bg-secondary">Inactivo</span>}
+                </td>
                 <td className="text-end">
+                  <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => toggleActivo(a)}>
+                    {a.activo ? 'Inactivar' : 'Activar'}
+                  </button>
                   <button className="btn btn-sm btn-outline-danger" onClick={() => eliminar(a.id)}>Quitar</button>
                 </td>
               </tr>

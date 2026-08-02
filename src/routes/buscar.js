@@ -12,7 +12,7 @@ router.post('/', validate(buscarSchema), async (req, res) => {
   const { dni } = req.body;
 
   const asociaciones = await prisma.usuarioBarrio.findMany({
-    where: { dni, barrio: { activo: true } },
+    where: { dni, activo: true, barrio: { activo: true } },
     include: { barrio: true },
   });
 
