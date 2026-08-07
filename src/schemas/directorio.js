@@ -30,9 +30,20 @@ const webhookSchema = z.object({
   activo: z.boolean().optional(),
 });
 
+const ssoEmitirSchema = z.object({
+  dni: z.string().min(1).max(20),
+});
+
+const ssoCanjearSchema = z.object({
+  comprobante: z.string().min(1),
+});
+
 const cambiarPasswordSchema = z.object({
   password_actual: z.string().min(1),
   password_nueva: z.string().min(8, 'La contraseña nueva debe tener al menos 8 caracteres'),
 });
 
-module.exports = { loginSchema, barrioSchema, asociacionSchema, buscarSchema, webhookSchema, cambiarPasswordSchema };
+module.exports = {
+  loginSchema, barrioSchema, asociacionSchema, buscarSchema, webhookSchema, cambiarPasswordSchema,
+  ssoEmitirSchema, ssoCanjearSchema,
+};

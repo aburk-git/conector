@@ -36,6 +36,39 @@ model Barrio {
   @@map("barrio")
 }
 
+// Comprobante de "este DNI ya puso su contraseña bien en un barrio", para
+// que la app pueda entrar sola a los demas barrios de ese DNI sin pedirsela
+// de nuevo. Vida corta (unos minutos): lo emite el barrio de origen despues
+// de validar la contraseña, y lo consume cada barrio destino una sola vez
+// (ver ComprobanteSsoUso). El jti tambien va firmado adentro del JWT: la
+// fila sirve para poder invalidarlo (anti-replay), no para la firma en si.
+model ComprobanteSso {
+  jti            String              @id
+  dni            String
+  id_barrio_origen Int
+  expira         DateTime
+  fecha_creacion DateTime            @default(now())
+  usos           ComprobanteSsoUso[]
+
+  @@index([dni])
+  @@map("comprobante_sso")
+}
+
+// Un barrio destino solo puede canjear el mismo comprobante una vez (evita
+// que alguien lo reuse contra el mismo barrio en loop dentro de la ventana
+// de validez); distintos barrios SI pueden canjear el mismo comprobante cada
+// uno la suya, porque el objetivo es entrar a todos de una.
+model ComprobanteSsoUso {
+  id           Int            @id @default(autoincrement())
+  jti          String
+  id_barrio    Int
+  fecha_canje  DateTime       @default(now())
+  comprobante  ComprobanteSso @relation(fields: [jti], references: [jti])
+
+  @@unique([jti, id_barrio])
+  @@map("comprobante_sso_uso")
+}
+
 // Relacion DNI <-> barrio: en que barrios tiene usuario esa persona
 model UsuarioBarrio {
   id             Int      @id @default(autoincrement())
